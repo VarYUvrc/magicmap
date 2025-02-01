@@ -1,0 +1,12 @@
+# backend
+.venv
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+
+# frontend
+node_modules
