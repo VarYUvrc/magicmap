@@ -1,3 +1,5 @@
+# backend/session_manager.py
+
 # 簡易なセッション管理（実運用では DB などを用いた管理が望ましい）
 _contexts = {}
 

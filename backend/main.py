@@ -1,4 +1,5 @@
-from typing import Optional
+# backend/main.py
+from typing import List, Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -6,17 +7,15 @@ from executor import run_cell_code
 
 app = FastAPI()
 
-# CORSの設定（必要に応じて許可するオリジンを調整してください）
 origins = [
     "http://localhost:3000",
     "http://10.255.255.254:3000",
     "http://172.24.55.24:3000",
-    # 必要なら他のオリジンも追加
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # または ["*"] として全て許可する
+    allow_origins=origins,  # 必要に応じて調整
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,12 +23,16 @@ app.add_middleware(
 
 class ExecuteRequest(BaseModel):
     code: str
-    parent_context_id: Optional[str] = None
+    parent_context_ids: Optional[List[str]] = None  # 複数の上流セルの context_id を受け取る
 
 @app.post("/api/execute")
 async def execute_cell(request: ExecuteRequest):
-    output, new_context_id = run_cell_code(request.code, request.parent_context_id)
-    return {"output": output, "context_id": new_context_id}
+    output, new_context_id, defined_vars = run_cell_code(request.code, request.parent_context_ids)
+    return {
+        "output": output,
+        "context_id": new_context_id,
+        "defined_vars": defined_vars
+    }
 
 if __name__ == "__main__":
     import uvicorn
